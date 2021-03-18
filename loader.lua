@@ -1,3 +1,43 @@
+if not getgenv() then
+    _G.getgenv = function()
+        return _G
+    end
+end
+if not syn then
+    if pebc_execute and not SENTINEL_V2 and not request then
+        getgenv().syn = {
+            request = function(t)
+                return http_request(t)
+            end
+        }
+        getgenv().isfile = function(t)
+            return pcall(function()
+                readfile(t)
+            end)
+        end
+        getgenv().delfile = function() end
+    elseif not pebc_executeand and not SENTINEL_V2 and request then
+        getgenv().syn = {
+            request = function(t)
+                return request(t)
+            end
+        }
+        getgenv().isfile = function(t)
+            return pcall(function()
+                readfile(t)
+            end)
+        end
+        getgenv().delfile = function() end
+    end
+end
+getgenv().json = {
+    encode = function(v)
+        return game:service('HttpService'):JSONEncode(v)
+    end,
+    decode = function(v)
+        return game:service('HttpService'):JSONDecode(v)
+    end,
+}
 local function instance(className,properties,children,funcs)
     local object = Instance.new(className,parent)
 
