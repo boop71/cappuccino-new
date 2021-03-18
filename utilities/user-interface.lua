@@ -2392,6 +2392,7 @@ function Material.new(title, style, x, y)
 			local SliderMin = SliderConfig.min or 0
 			local SliderMax = SliderConfig.max or 100
 			local Menu = SliderConfig.menu or {}
+			SliderConfig.float = typeof(SliderConfig.float) == 'number' and SliderConfig.float or 1
 
 			if SliderMin > SliderMax then
 				local ValueBefore = SliderMin
