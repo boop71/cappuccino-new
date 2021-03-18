@@ -1,4 +1,4 @@
-if not getgenv() then
+if not getgenv then
     _G.getgenv = function()
         return _G
     end
