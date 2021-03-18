@@ -1760,10 +1760,10 @@ function Material.new(title, style, x, y)
 		end
 
 		function OptionLibrary:ColorPicker(ColorPickerConfig)
-			local ColorPickerText = ColorPickerConfig.Text or "nil color picker"
-			local ColorPickerCallback = ColorPickerConfig.Callback or function() print("nil color picker") end
-			local ColorPickerDefault = ColorPickerConfig.Default or Color3.fromRGB(255,255,255)
-			local ColorPickerMenu = ColorPickerConfig.Menu or {}
+			local ColorPickerText = ColorPickerConfig.text or "nil color picker"
+			local ColorPickerCallback = ColorPickerConfig.callback or function() print("nil color picker") end
+			local ColorPickerDefault = ColorPickerConfig.color or Color3.fromRGB(255,255,255)
+			local ColorPickerMenu = ColorPickerConfig.menu or {}
 			local ColorPickerToggle = false
 
 			local H, S, V = Objects.new("NumberValue"), Objects.new("NumberValue"), Objects.new("NumberValue")
