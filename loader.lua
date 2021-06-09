@@ -16,7 +16,7 @@ if not syn then
             end)
         end
         getgenv().delfile = function() end
-    elseif not pebc_executeand and not SENTINEL_V2 and request then
+    elseif not pebc_execute and not SENTINEL_V2 and request then
         getgenv().syn = {
             request = function(t)
                 return request(t)
