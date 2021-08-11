@@ -84,6 +84,30 @@ end,function()
                 rdistance = 5000,
                 vcheck = false
             },
+            crosshair = {
+                visible = false,
+                thickness = 0.5,
+                size = 10,
+                color = {
+                    r = 1,
+                    g = 1,
+                    c = 1,
+                    outline = {
+                        r = 0,
+                        g = 0,
+                        b = 0,
+                    },
+                },
+                alpha = 1,
+                gap = 5,
+                pos = 0,
+                mouse = false,
+                outline = {
+                    enabled = false,
+                    thickness = 5,
+                    transparency = 1
+                }
+            },
         }
     }
     writefile('cappuccino-data-'..game.PlaceId..'.json',json.encode(d))
@@ -657,3 +681,120 @@ service('RunService').Stepped:connect(function()
         end
     end
 end)
+
+local function draw(i, k)
+    local d = Drawing.new(i)
+    for a,v in next, k do
+        d[a] = v
+    end
+    return d
+end
+
+local outline = {
+    up = draw('Line', {}),
+    left = draw('Line', {}),
+    right = draw('Line', {}),
+    down = draw('Line', {}),
+}
+
+local cross = {
+    up = draw('Line', {}),
+    left = draw('Line', {}),
+    right = draw('Line', {}),
+    down = draw('Line', {}),
+}
+
+local ut
+ut = {
+    gc = function()
+        local mouse = game:service('Players').LocalPlayer:GetMouse()
+        return not gd.u.crosshair.mouse and Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2) or Vector2.new(mouse.X, mouse.Y) + Vector2.new(0, 36)
+    end,
+    gs = function(a, i, g)
+        local c = ut.gc()
+        local xs, ys, xs2, ys2 = (a == 0 and c.X - (g + i) or a == 1 and c.X + (g + i) or c.X), (a == 3 and c.Y - (g + i) or a == 4 and c.Y + (g + i) or c.Y), (a == 0 and c.X - g or a == 1 and c.X + g or c.X), (a == 3 and c.Y - g or a == 4 and c.Y + g or c.Y)
+        return {Vector2.new(xs, ys), Vector2.new(xs2, ys2)}
+    end,
+    up = function(d, i, k)
+        cross[d].From = i
+        cross[d].To = k
+    end,
+    up2 = function(d, i, k)
+        outline[d].From = i
+        outline[d].To = k
+    end,
+    f = function(t)
+        return {t.r, t.g, t.b}
+    end
+}
+
+game:service('RunService').Stepped:connect(function()
+    for a,v in next, outline do        
+        v.Visible = gd.u.crosshair.outline.enabled
+        v.Thickness = cross[a].Thickness + gd.u.crosshair.outline.thickness
+        v.Transparency = gd.u.crosshair.outline.transparency
+        local c = gd.u.crosshair.color.outline
+
+        v.Color = Color3.new(c.r, c.g, c.b)
+    end
+
+    local t = gd.u.crosshair.outline.thickness
+    outline.up.From = cross.up.From - Vector2.new(0, t * 0.6); outline.up.To = cross.up.To + Vector2.new(0, t * 0.6)
+    outline.down.From = cross.down.From + Vector2.new(0, t * 0.6); outline.down.To = cross.down.To - Vector2.new(0, t * 0.6)
+    outline.left.From = cross.left.From - Vector2.new(t * 0.6, 0); outline.left.To = cross.left.To + Vector2.new(t * 0.6, 0)
+    outline.right.From = cross.right.From + Vector2.new(t * 0.6, 0); outline.right.To = cross.right.To - Vector2.new(t * 0.6, 0)
+end)
+
+
+local w = library:Page('Crosshair')
+w:Toggle({text = 'Visible', state = gd.u.crosshair.visible, callback = function(s)
+    gd.u.crosshair.visible = s
+end})
+w:Slider({text = 'Thickness', value = gd.u.crosshair.thickness, min = 0.5, max = 10, float = 0.1, callback = function(v)
+    gd.u.crosshair.thickness = v
+end})
+w:Slider({text = 'Gap', value = gd.u.crosshair.gap, min = 0, max = 20, float = 0.5, callback = function(v)
+    gd.u.crosshair.gap = v
+end})
+w:Slider({text = 'Size', value = gd.u.crosshair.size, min = 1, max = 30, foat = 1, callback = function(v)
+    gd.u.crosshair.size = v
+end})
+w:Slider({text = 'Alpha', value = gd.u.crosshair.alpha, min = 0, max = 1, float = 0.01, callback = function(v)
+    gd.u.crosshair.alpha = v
+end})
+w:Toggle({text = 'Follow mouse', state = gd.u.crosshair.mouse, callback = function(s)
+    gd.u.crosshair.mouse = s
+end})
+w:ColorPicker({text = 'Color', colour = ut.f(gd.u.crosshair.color), callback = function(f)
+    local c = gd.u.crosshair.color; c.r = f.r; c.g = f.g; c.b = f.b
+end})
+w:Toggle({text = 'Outline', state = gd.u.crosshair.outline.enabled, callback = function(s)
+    gd.u.crosshair.outline.enabled = s
+end})
+w:Slider({text = 'Outline size', value = gd.u.crosshair.outline.thickness, min = 3, max = 10, float = 0.01, callback = function(v)
+    gd.u.crosshair.outline.thickness = v
+end})
+w:Slider({text = 'Outline alpha', value = gd.u.crosshair.outline.transparency, min = 0.1, max = 1, float = 0.1, callback = function(v)
+    gd.u.crosshair.outline.transparency = v
+end})
+w:ColorPicker({text = 'Outline colour', colour = ut.f(gd.u.crosshair.color.outline), callback = function(f)
+    local c = gd.u.crosshair.color.outline; c.r = f.r; c.g = f.g; c.b = f.b
+end})
+
+lib:Init()
+
+local function update()
+    ut.up('up', ut.gs(3, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(3, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
+    ut.up('down', ut.gs(4, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(4, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
+    ut.up('left', ut.gs(0, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(0, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
+    ut.up('right', ut.gs(1, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(1, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
+
+    for a,v in next, cross do
+        v.Transparency = gd.u.crosshair.alpha
+        v.Visible = gd.u.crosshair.visible
+        v.Thickness = gd.u.crosshair.thickness
+        v.Color = Color3.new(gd.u.crosshair.color.r, gd.u.crosshair.color.g, gd.u.crosshair.color.b)
+    end
+end
+
+game:service('RunService').Stepped:connect(update)
