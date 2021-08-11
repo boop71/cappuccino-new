@@ -781,8 +781,6 @@ w:ColorPicker({text = 'Outline colour', colour = ut.f(gd.u.crosshair.color.outli
     local c = gd.u.crosshair.color.outline; c.r = f.r; c.g = f.g; c.b = f.b
 end})
 
-lib:Init()
-
 local function update()
     ut.up('up', ut.gs(3, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(3, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
     ut.up('down', ut.gs(4, gd.u.crosshair.size, gd.u.crosshair.gap)[1], ut.gs(4, gd.u.crosshair.size, gd.u.crosshair.gap)[2])
