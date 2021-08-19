@@ -681,7 +681,7 @@ service('RunService').Stepped:connect(function()
         end
     end
 end)
-
+--[[
 local function draw(i, k)
     local d = Drawing.new(i)
     for a,v in next, k do
@@ -796,3 +796,4 @@ local function update()
 end
 
 game:service('RunService').Stepped:connect(update)
+]]
