@@ -39,6 +39,15 @@ local function MakeDraggable(ClickObject, Object)
 	end)
 end
 
+local function round(num, bracket)
+	bracket = bracket or 1
+	local a = math.floor(num/bracket + (math.sign(num) * 0.5)) * bracket
+	if a < 0 then
+		a = a + bracket
+	end
+	return a
+end
+
 function Library:CreateWindow(Config, Parent)
 	local WindowInit = {}
 	local Folder = game:GetObjects("rbxassetid://7141683860")[1]
@@ -228,7 +237,7 @@ function Library:CreateWindow(Config, Parent)
 				Section.Size = UDim2.new(1,0,0,Section.Container.ListLayout.AbsoluteContentSize.Y + 15)
 			end)
 			
-			function SectionInit:CreateLabel(Name)
+			function SectionInit:Label(Name)
 				local LabelInit = {}
 				local Label = Folder.Label:Clone()
 				Label.Name = Name .. " L"
@@ -241,7 +250,8 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return LabelInit
 			end
-			function SectionInit:CreateButton(Name, Callback)
+			function SectionInit:Button(buttonData)
+                local Name, Callback = tostring(buttonData.Text), typeof(buttonData.Callback) == 'function' and buttonData.Callback or function() end
 				local ButtonInit = {}
 				local Button = Folder.Button:Clone()
 				Button.Name = Name .. " B"
@@ -266,7 +276,7 @@ function Library:CreateWindow(Config, Parent)
 					Callback()
 				end)
 
-				function ButtonInit:AddToolTip(Name)
+				function ButtonInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						Button.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
@@ -282,7 +292,8 @@ function Library:CreateWindow(Config, Parent)
 
 				return ButtonInit
 			end
-			function SectionInit:CreateTextBox(Name, PlaceHolder, NumbersOnly, Callback)
+			function SectionInit:Textbox(textData)
+                local Name, PlaceHolder, NumbersOnly, Callback = tostring(textData.Text), tostring(textData.Placeholder), typeof(textData.Numbers) == 'boolean' and textData.Numbers or false, typeof(textData.Callback) == 'function' and textData.Callback or function() end
 				local TextBoxInit = {}
 				local TextBox = Folder.TextBox:Clone()
 				TextBox.Name = Name .. " T"
@@ -305,7 +316,7 @@ function Library:CreateWindow(Config, Parent)
 					Callback(String)
 					TextBox.Background.Input.Text = String
 				end
-				function TextBoxInit:AddToolTip(Name)
+				function TextBoxInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						TextBox.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
@@ -320,7 +331,8 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return TextBoxInit
 			end
-			function SectionInit:CreateToggle(Name, Default, Callback)
+			function SectionInit:Toggle(Name, Default, Callback)
+                local Name, Default, Callback = tostring(toggleData.Text), typeof(toggleData.State) == 'boolean' and toggleData.State or false, typeof(toggleData.Callback) == 'function' and toggleData.Callback or function() end
 				local DefaultLocal = Default or false
 				local ToggleInit = {}
 				local Toggle = Folder.Toggle:Clone()
@@ -347,7 +359,7 @@ function Library:CreateWindow(Config, Parent)
 					SetState(ToggleState)
 				end)
 
-				function ToggleInit:AddToolTip(Name)
+				function ToggleInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						Toggle.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
@@ -373,13 +385,18 @@ function Library:CreateWindow(Config, Parent)
 					return ToggleState
 				end
 
-				function ToggleInit:CreateKeybind(Bind,Callback)
+				function ToggleInit:Keybind(Bind,Callback)
+                    local Bind, Callback, Blacklist2 = bindData.Bind, typeof(bindData.Callback) == 'function' and bindData.Callback or function() end, typeof(bindData.Blacklist) == 'table' and bindData.Blacklist or {}
 					local KeybindInit = {}
 					Bind = Bind or "NONE"
 
 					local WaitingForBind = false
 					local Selected = Bind
 					local Blacklist = {"W","A","S","D","Slash","Tab","Backspace","Escape","Space","Delete","Unknown","Backquote"}
+
+                    for a,v in next, Blacklist2 do
+                        table.insert(Blacklist, v)
+                    end
 
 					Toggle.Keybind.Visible = true
 					Toggle.Keybind.Text = "[ " .. Bind .. " ]"
@@ -430,7 +447,9 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return ToggleInit
 			end
-			function SectionInit:CreateSlider(Name, Min, Max, Default, Precise, Callback)
+			function SectionInit:Slider(sliderData)
+                local Name, Min, Max, Default, Float, Callback = tostring(sliderData.Text), typeof(sliderData.Min) == 'number' and sliderData.Min or 0, typeof(sliderData.Max) == 'number' and sliderData.Max or 100, typeof(sliderData.Value) == 'number' and sliderData.Value or sliderData.Min, typeof(sliderData.Float) == 'number' and sliderData.Float or 1, typeof(sliderData.Callback) == 'function' and sliderData.Callback or function() end
+                local Precise = false
 				local DefaultLocal = Default or 50
 				local SliderInit = {}
 				local Slider = Folder.Slider:Clone()
@@ -450,9 +469,7 @@ function Library:CreateWindow(Config, Parent)
 				local function Sliding(Input)
                     local Position = UDim2.new(math.clamp((Input.Position.X - Slider.Slider.AbsolutePosition.X) / Slider.Slider.AbsoluteSize.X,0,1),0,1,0)
                     Slider.Slider.Bar.Size = Position
-					local SliderPrecise = ((Position.X.Scale * Max) / Max) * (Max - Min) + Min
-					local SliderNonPrecise = math.floor(((Position.X.Scale * Max) / Max) * (Max - Min) + Min)
-                    local SliderValue = Precise and SliderNonPrecise or SliderPrecise
+                    local SliderValue = round(((Position.X.Scale * Max) / Max) * (Max - Min) + Min, sliderData.Float)
 					SliderValue = tonumber(string.format("%.2f", SliderValue))
 					GlobalSliderValue = SliderValue
                     Slider.Value.PlaceholderText = tostring(SliderValue)
@@ -511,7 +528,7 @@ function Library:CreateWindow(Config, Parent)
 					end
 				end)
 
-				function SliderInit:AddToolTip(Name)
+				function SliderInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						Slider.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
@@ -542,7 +559,8 @@ function Library:CreateWindow(Config, Parent)
 
 				return SliderInit
 			end
-			function SectionInit:CreateDropdown(Name, OptionTable, Callback, InitialValue)
+			function SectionInit:Dropdown(dropData)
+                local Name, OptionTable, Callback, InitialValue = tostring(dropData.Text), typeof(dropData.Options) == 'table' and dropData.Options or {}, typeof(dropData.Callback) == 'function' and dropData.Callback or function() end, dropData.Value
 				local DropdownInit = {}
 				local Dropdown = Folder.Dropdown:Clone()
 				Dropdown.Name = Name .. " D"
@@ -594,7 +612,7 @@ function Library:CreateWindow(Config, Parent)
 						Callback(OptionName)
 					end)
 				end
-				function DropdownInit:AddToolTip(Name)
+				function DropdownInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						Dropdown.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
@@ -642,10 +660,21 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return DropdownInit
 			end
-			function SectionInit:CreateColorpicker(Name,Callback)
+			function SectionInit:Colorpicker(colorData)
+                local Name, Callback, Default = tostring(colorData.Text), typeof(colorData.Callback) == 'function' and colorData.Callback or function() end, typeof(colorData.Color) == 'Color3' and colorData.Color or Color3.new(1, 1, 1)
 				local ColorpickerInit = {}
 				local Colorpicker = Folder.Colorpicker:Clone()
 				local Pallete = Folder.Pallete:Clone()
+
+                local Hue, Saturation, Value = Default:ToHSV()
+                Colorpicker.Color.BackgroundColor3 = Color3.fromHSV(Hue,Saturation,Value)
+                Pallete.GradientPallete.BackgroundColor3 = Color3.fromHSV(Hue,1,1)
+                Pallete.Input.InputBox.PlaceholderText = "RGB: " .. math.round(Colorpicker.Color.BackgroundColor3.R* 255) .. "," .. math.round(Colorpicker.Color.BackgroundColor3.G * 255) .. "," .. math.round(Colorpicker.Color.BackgroundColor3.B * 255)
+                ColorTable = {
+                    Hue = Hue,
+                    Saturation = Saturation,
+                    Value = Value
+                }
 
 				Colorpicker.Name = Name .. " CP"
 				Colorpicker.Parent = Section.Container
@@ -750,7 +779,7 @@ function Library:CreateWindow(Config, Parent)
 					end
 				end)
 
-				function ColorpickerInit:AddToolTip(Name)
+				function ColorpickerInit:ToolTip(Name)
 					if tostring(Name):gsub(" ", "") ~= "" then
 						Colorpicker.MouseEnter:Connect(function()
 							Screen.ToolTip.Text = Name
