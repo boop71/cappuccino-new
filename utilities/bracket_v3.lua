@@ -251,8 +251,7 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return LabelInit
 			end
-			function SectionInit:Button(buttonData)
-                local Name, Callback = tostring(buttonData.Text), typeof(buttonData.Callback) == 'function' and buttonData.Callback or function() end
+			function SectionInit:Button(Name, Callback)
 				local ButtonInit = {}
 				local Button = Folder.Button:Clone()
 				Button.Name = Name .. " B"
@@ -293,8 +292,7 @@ function Library:CreateWindow(Config, Parent)
 
 				return ButtonInit
 			end
-			function SectionInit:Textbox(textData)
-                local Name, PlaceHolder, NumbersOnly, Callback = tostring(textData.Text), tostring(textData.Placeholder), typeof(textData.Numbers) == 'boolean' and textData.Numbers or false, typeof(textData.Callback) == 'function' and textData.Callback or function() end
+			function SectionInit:Textbox(Name, PlaceHolder, NumbersOnly, Callback)
 				local TextBoxInit = {}
 				local TextBox = Folder.TextBox:Clone()
 				TextBox.Name = Name .. " T"
@@ -332,8 +330,7 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return TextBoxInit
 			end
-			function SectionInit:Toggle(toggleData)
-                local Name, Default, Callback = tostring(toggleData.Text), typeof(toggleData.State) == 'boolean' and toggleData.State or false, typeof(toggleData.Callback) == 'function' and toggleData.Callback or function() end
+			function SectionInit:Toggle(Name, Default, Callback)
 				local DefaultLocal = Default or false
 				local ToggleInit = {}
 				local Toggle = Folder.Toggle:Clone()
@@ -386,18 +383,13 @@ function Library:CreateWindow(Config, Parent)
 					return ToggleState
 				end
 
-				function ToggleInit:Keybind(Bind,Callback)
-                    local Bind, Callback, Blacklist2 = bindData.Bind, typeof(bindData.Callback) == 'function' and bindData.Callback or function() end, typeof(bindData.Blacklist) == 'table' and bindData.Blacklist or {}
+				function ToggleInit:Keybind(Bind, Callback)
 					local KeybindInit = {}
 					Bind = Bind or "NONE"
 
 					local WaitingForBind = false
 					local Selected = Bind
 					local Blacklist = {"W","A","S","D","Slash","Tab","Backspace","Escape","Space","Delete","Unknown","Backquote"}
-
-                    for a,v in next, Blacklist2 do
-                        table.insert(Blacklist, v)
-                    end
 
 					Toggle.Keybind.Visible = true
 					Toggle.Keybind.Text = "[ " .. Bind .. " ]"
@@ -448,8 +440,7 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return ToggleInit
 			end
-			function SectionInit:Slider(sliderData)
-                local Name, Min, Max, Default, Float, Callback = tostring(sliderData.Text), typeof(sliderData.Min) == 'number' and sliderData.Min or 0, typeof(sliderData.Max) == 'number' and sliderData.Max or 100, typeof(sliderData.Value) == 'number' and sliderData.Value or sliderData.Min, typeof(sliderData.Float) == 'number' and sliderData.Float or 1, typeof(sliderData.Callback) == 'function' and sliderData.Callback or function() end
+			function SectionInit:Slider(Name, Min, Max, Default, Float, Callback)
                 local Precise = false
 				local DefaultLocal = Default or 50
 				local SliderInit = {}
@@ -470,7 +461,8 @@ function Library:CreateWindow(Config, Parent)
 				local function Sliding(Input)
                     local Position = UDim2.new(math.clamp((Input.Position.X - Slider.Slider.AbsolutePosition.X) / Slider.Slider.AbsoluteSize.X,0,1),0,1,0)
                     Slider.Slider.Bar.Size = Position
-                    local SliderValue = round(((Position.X.Scale * Max) / Max) * (Max - Min) + Min, sliderData.Float)
+					local SliderPrecise = ((Position.X.Scale * Max) / Max) * (Max - Min) + Min
+                    local SliderValue = round(SliderPrecise, Float)
 					SliderValue = tonumber(string.format("%.2f", SliderValue))
 					GlobalSliderValue = SliderValue
                     Slider.Value.PlaceholderText = tostring(SliderValue)
@@ -560,8 +552,7 @@ function Library:CreateWindow(Config, Parent)
 
 				return SliderInit
 			end
-			function SectionInit:Dropdown(dropData)
-                local Name, OptionTable, Callback, InitialValue = tostring(dropData.Text), typeof(dropData.Options) == 'table' and dropData.Options or {}, typeof(dropData.Callback) == 'function' and dropData.Callback or function() end, dropData.Value
+			function SectionInit:Dropdown(Name, OptionTable, Callback, InitialValue)
 				local DropdownInit = {}
 				local Dropdown = Folder.Dropdown:Clone()
 				Dropdown.Name = Name .. " D"
@@ -661,21 +652,10 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return DropdownInit
 			end
-			function SectionInit:Colorpicker(colorData)
-                local Name, Callback, Default = tostring(colorData.Text), typeof(colorData.Callback) == 'function' and colorData.Callback or function() end, typeof(colorData.Color) == 'Color3' and colorData.Color or Color3.new(1, 1, 1)
+			function SectionInit:Colorpicker(Name,Callback)
 				local ColorpickerInit = {}
 				local Colorpicker = Folder.Colorpicker:Clone()
 				local Pallete = Folder.Pallete:Clone()
-
-                local Hue, Saturation, Value = Default:ToHSV()
-                Colorpicker.Color.BackgroundColor3 = Color3.fromHSV(Hue,Saturation,Value)
-                Pallete.GradientPallete.BackgroundColor3 = Color3.fromHSV(Hue,1,1)
-                Pallete.Input.InputBox.PlaceholderText = "RGB: " .. math.round(Colorpicker.Color.BackgroundColor3.R* 255) .. "," .. math.round(Colorpicker.Color.BackgroundColor3.G * 255) .. "," .. math.round(Colorpicker.Color.BackgroundColor3.B * 255)
-                ColorTable = {
-                    Hue = Hue,
-                    Saturation = Saturation,
-                    Value = Value
-                }
 
 				Colorpicker.Name = Name .. " CP"
 				Colorpicker.Parent = Section.Container
