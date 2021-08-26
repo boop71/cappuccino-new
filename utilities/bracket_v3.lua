@@ -1,3 +1,4 @@
+
 local Library = {Toggle = true,FirstTab = nil,TabCount = 0,ColorTable = {}}
 
 local RunService = game:GetService("RunService")
@@ -163,7 +164,7 @@ function Library:CreateWindow(Config, Parent)
 		end
 	end)
 
-	function WindowInit:CreateTab(Name)
+	function WindowInit:Tab(Name)
 		local TabInit = {}
 		local Tab = Folder.Tab:Clone()
 		local TabButton = Folder.TabButton:Clone()
@@ -224,7 +225,7 @@ function Library:CreateWindow(Config, Parent)
 			end
 		end)
 
-		function TabInit:CreateSection(Name)
+		function TabInit:Section(Name)
 			local SectionInit = {}
 			local Section = Folder.Section:Clone()
 			Section.Name = Name .. " S"
@@ -331,7 +332,7 @@ function Library:CreateWindow(Config, Parent)
 				end
 				return TextBoxInit
 			end
-			function SectionInit:Toggle(Name, Default, Callback)
+			function SectionInit:Toggle(toggleData)
                 local Name, Default, Callback = tostring(toggleData.Text), typeof(toggleData.State) == 'boolean' and toggleData.State or false, typeof(toggleData.Callback) == 'function' and toggleData.Callback or function() end
 				local DefaultLocal = Default or false
 				local ToggleInit = {}
