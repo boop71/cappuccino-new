@@ -4,34 +4,20 @@ if not getgenv then
     end
 end
 if not syn then
-    if pebc_execute and not SENTINEL_V2 and not request then
-        getgenv().syn = {
-            request = function(t)
-                return http_request(t)
-            end,
-            protect_gui = function(object)
-                print(object:GetFullName())
-            end
-        }
-        getgenv().isfile = function(t)
-            return pcall(function()
-                readfile(t)
-            end)
+    getgenv().syn = {
+        request = function(t)
+            return http_request(t)
+        end,
+        protect_gui = function(object)
+            print(object:GetFullName())
         end
-        getgenv().delfile = function() end
-    elseif not pebc_execute and not SENTINEL_V2 and request then
-        getgenv().syn = {
-            request = function(t)
-                return request(t)
-            end
-        }
-        getgenv().isfile = function(t)
-            return pcall(function()
-                readfile(t)
-            end)
-        end
-        getgenv().delfile = function() end
+    }
+    getgenv().isfile = function(t)
+        return pcall(function()
+            readfile(t)
+        end)
     end
+    getgenv().delfile = function() end
 end
 
 pcall(function()
