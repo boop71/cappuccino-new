@@ -8,6 +8,9 @@ if not syn then
         getgenv().syn = {
             request = function(t)
                 return http_request(t)
+            end,
+            protect_gui = function(object)
+                print(object:GetFullName())
             end
         }
         getgenv().isfile = function(t)
