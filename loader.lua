@@ -8,9 +8,7 @@ if not syn then
         request = function(t)
             return http_request(t)
         end,
-        protect_gui = function(object)
-            print(object:GetFullName())
-        end
+        protect_gui = function(object) end
     }
     getgenv().isfile = function(t)
         return pcall(function()
